@@ -11,3 +11,10 @@ The Burrows-Wheeler compression algorithm consists of three algorithmic componen
 Step 3 is the one that compresses the message: it is particularly effective because Steps 1 and 2 steps result in a text file in which certain characters appear much more frequently than others. To expand a message, apply the inverse operations in reverse order: first apply the Huffman expansion, then the move-to-front decoding, and finally the inverse Burrows-Wheeler transform. Your task is to implement Burrows-Wheeler and move-to-front components efficiently.
 
 Basead on algorithms of book **Algorithms, 4th Edition**
+
+### TESTING ###
+#### Huffman Transform ####
+```
+$ time ./bin/Huffman -e < ./test/mobydick.txt > ./test/mobydick.bwc
+$ time ./bin/Huffman -d < ./test/mobydick.bwc > ./test/mobydick_new.txt
+```

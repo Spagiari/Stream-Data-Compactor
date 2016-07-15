@@ -22,6 +22,11 @@ namespace bw
             {
             }
 
+            std::ostream* getStream()
+            {
+                return out_ptr;
+            }
+
             void write(const bool bit);
             void write(const char byte);
             void write(const char* s, const int len);

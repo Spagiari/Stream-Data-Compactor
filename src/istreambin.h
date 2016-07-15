@@ -23,6 +23,11 @@ namespace bw
             {
             }
 
+            std::istream* getStream()
+            {
+                return in_ptr;
+            }
+
 
             void fillbuffer();
 

@@ -82,8 +82,8 @@ namespace bw {
         public:
             void static compress(istreambin &streamin, ostreambin &streamout) {
                 // read the input
-                std::string s;
-                streamin.read(s);
+                std::istreambuf_iterator<char> eos;
+                std::string s(std::istreambuf_iterator<char>(*(streamin.getStream())), eos);
 
                 std::vector<char> input(s.begin(), s.end());
 
@@ -194,6 +194,8 @@ namespace bw {
 
                                 streamin.read(reinterpret_cast<char *>(&length), sizeof(length));
 
+                                std::stringstream ss;
+
                                 // decode using the Huffman trie
                                 for (int i = 0; i < length; i++) {
                                     Node_ptr x = root;
@@ -204,8 +206,10 @@ namespace bw {
                                         if (bit) x = x->right;
                                         else     x = x->left;
                                     }
-                                    streamout.write(x->ch);
+                                    //streamout.getStream()->put(x->ch);
+                                    ss.put(x->ch);
                                 }
+                                (*streamout.getStream()) << ss.rdbuf();
                                 streamout.flush();
                             }
 

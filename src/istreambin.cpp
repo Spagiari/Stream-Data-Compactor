@@ -62,12 +62,12 @@ bool bw::istreambin::read(char *s, const int len)
 
 bool bw::istreambin::read(std::string &s)
 {
-    if (bufferInBitSize == 0)
-    {
-        std::istreambuf_iterator<char> eos;
-        std::string s1(std::istreambuf_iterator<char>(*in_ptr), eos);
-        s = s1;
-        return true;
-    }
+//    if (bufferInBitSize == 0)
+//    {
+//        std::istreambuf_iterator<char> eos;
+//        std::string s1(std::istreambuf_iterator<char>(*in_ptr), eos);
+//        s = s1;
+//        return true;
+//    }
     return false;
 }
