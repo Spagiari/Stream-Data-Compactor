@@ -19,8 +19,8 @@ namespace bw
                     Item(char v) {
                         value = v;
                     }
-                    char get() { return value; }
-                    void set(char c) { value = c; }
+                    char get() const { return value; }
+                    void set(const char &c) { value = c; }
                     void inc() { value++; }
             };
 
@@ -39,8 +39,9 @@ namespace bw
 
                 char c;
                 while (streamin.get(c)) {
-                    std::shared_ptr<Item> pos = ct[c];
-                    for (int i = pos->get(); i > 0; i--) {
+                    int d = (0xff) & c;
+                    std::shared_ptr<Item> pos = ct[d];
+                    for (int i = pos->get(); i > 0; --i) {
                         cv[i] = cv[i-1];
                         cv[i]->inc();
                     }
