@@ -12,9 +12,32 @@ Step 3 is the one that compresses the message: it is particularly effective beca
 
 Basead on algorithms of book **Algorithms, 4th Edition**
 
+## Build ##
+```
+$ make
+```
+
 ### TESTING ###
+
+#### Move To Front ####
+```
+$ time ./bin/MoveToFront -ex
+$ time ./bin/MoveToFront -e < ./test/abra.txt | ./bin/MoveToFront -d
+```
+#### Burrows-Weeler ####
+```
+$ time ./bin/BurrowsWheeler -ex
+$ time ./bin/BurrowsWheeler -e < ./test/abra.txt | ./bin/BurrowsWheeler -d
+```
 #### Huffman Transform ####
 ```
 $ time ./bin/Huffman -e < ./test/mobydick.txt > ./test/mobydick.bwc
 $ time ./bin/Huffman -d < ./test/mobydick.bwc > ./test/mobydick_new.txt
 ```
+#### Compress ####
+```
+$ time ./bin/BurrowsWheeler -e < ./test/mobydick.txt |
+    ./bin/MoveToFront -e |
+    ./bin/Huffman -e > ./test/mobydick1.bwr
+```
+#### Uncompress ####
