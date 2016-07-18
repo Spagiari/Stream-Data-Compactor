@@ -37,10 +37,10 @@ namespace bw {
 
             //return the dth character of s, -1 if d = length of s
         private:
-            int  charAt(int base, int d) {
+            int charAt(int base, int d) const {
                 assert(d >= 0 && d <= bufflen);
                 if (d == bufflen) return -1;
-                return buff->at(base + d);
+                return (unsigned char) buff->at(base + d);
             }
 
             //3-way string quicksort a[lo..hi] starting at dth character
@@ -91,8 +91,8 @@ namespace bw {
             // }
 
             // is v less than w, starting at character d
-            bool less(int v, int w, int d) {
-                //assert getString(v, d).equals(getString(w, d));
+            bool less(int v, int w, int d) const {
+                //assert (getString(v, d) == getString(w, d));
                 for (int i = d; i < bufflen; i++) {
                     if (charAt(v, i) < charAt(w, i)) return true;
                     if (charAt(v, i) > charAt(w, i)) return false;
@@ -101,9 +101,11 @@ namespace bw {
             }
 
             // is the array sorted
-            bool isSorted(std::vector<int> &a) {
+            bool isSorted(const std::vector<int> &a) const {
                 for (int i = 1; i < a.size(); i++)
-                    if (getString(a[i], bufflen).compare(getString(a[i-1], bufflen)) < 0) return false;
+                    if (less(a[i], a[i-1], 0))
+                        return false;
+                    //if (getString(a[i], bufflen) > getString(a[i-1], bufflen)) return false;
                 return true;
             }
     };

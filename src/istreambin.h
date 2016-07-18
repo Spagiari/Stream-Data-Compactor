@@ -8,7 +8,7 @@ namespace bw
 {
     class istreambin {
         private:
-            char bufferIn;
+            unsigned char bufferIn;
             int  bufferInBitSize;
             bool bufferInEOF;
             std::istream* in_ptr;

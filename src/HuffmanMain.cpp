@@ -1,6 +1,7 @@
 #include "boost/program_options.hpp"
 #include "boost/filesystem.hpp"
 #include <iostream>
+#include <fstream>
 #include <iomanip>
 #include <string>
 
@@ -18,6 +19,8 @@ namespace
 
 int main(int argc, char** argv)
 {
+    //std::string sif;
+    //std::string sof;
     try
     {
         /** Define and parse the program options
@@ -30,6 +33,8 @@ int main(int argc, char** argv)
             ("help,h", "Print help messages")
             ("encode,e", "Apply move to front encode")
             ("decode,d", "Apply move to front decode")
+            //("input,i", po::value<std::string>(&sif)->required(),  "Input File")
+            //("output,o", po::value<std::string>(&sof)->required(), "Output File")
             ("hexdump,x", "Set output to hex format");
 
         po::variables_map vm;
@@ -57,23 +62,21 @@ int main(int argc, char** argv)
             return ERROR_IN_COMMAND_LINE;
         }
 
-        int N = 512;
-
-        char *_cin = (char*) calloc(N, sizeof(char));
-        char *_cou = (char*) calloc(N, sizeof(char));
-
-        std::cin.rdbuf()->pubsetbuf(_cin, N);
-        std::cout.rdbuf()->pubsetbuf(_cou, N);
+        //std::fstream ifs;
+        //ifs.open(sif.c_str(), std::ios::binary | std::ios::in);
+        //std::fstream ofs;
+        //ofs.open(sof.c_str(), std::ios::binary | std::ios::out);
 
         bw::istreambin streamin(&std::cin);
+        bw::ostreambin streamout(&std::cout);
 
         if (vm.count("encode"))
         {
             if (vm.count("hexdump"))
             {
                 std::stringstream sout;
-                bw::ostreambin streamout(&sout);
-                bw::Huffman::compress(streamin, streamout);
+                bw::ostreambin streamout_ex(&sout);
+                bw::Huffman::compress(streamin, streamout_ex);
                 int bytes = 0;
                 char c;
                 while (sout.get(c))
@@ -87,15 +90,12 @@ int main(int argc, char** argv)
             }
             else
             {
-                bw::ostreambin streamout(&std::cout);
                 bw::Huffman::compress(streamin, streamout);
             }
         }
 
         if (vm.count("decode"))
         {
-
-            bw::ostreambin streamout(&std::cout);
             bw::Huffman::expand(streamin, streamout);
         }
 

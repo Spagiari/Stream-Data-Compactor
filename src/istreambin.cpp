@@ -2,8 +2,12 @@
 
 void bw::istreambin::fillbuffer()
 {
-    if (in_ptr->get(bufferIn))
+    char c;
+    if (in_ptr->get(c))
+    {
+        bufferIn = c;
         bufferInBitSize = 8;
+    }
     else
     {
         bufferInBitSize = -1;
@@ -44,13 +48,16 @@ bool bw::istreambin::read(char &byte)
         return true;
     }
 
-    byte = bufferIn << (8 - bufferInBitSize);
+    unsigned char c;
+    c = bufferIn << (8 - bufferInBitSize);
     int oldval = bufferInBitSize;
     fillbuffer();
     if(bufferInEOF)
         return false;
     bufferInBitSize = oldval;
-    byte = byte | (((0xff) & bufferIn) >> bufferInBitSize);
+    c = c | (bufferIn >> bufferInBitSize);
+    byte = c;
+    //byte = byte | (((0xff) & bufferIn) >> bufferInBitSize);
     return true;
 }
 

@@ -18,7 +18,7 @@ namespace bw {
     class Node
     {
         public:
-            char ch;
+            unsigned char ch;
             int freq;
             std::shared_ptr<Node> left, right;
 
@@ -85,12 +85,15 @@ namespace bw {
                 std::istreambuf_iterator<char> eos;
                 std::string s(std::istreambuf_iterator<char>(*(streamin.getStream())), eos);
 
-                std::vector<char> input(s.begin(), s.end());
+                std::vector<unsigned char> input(s.begin(), s.end());
 
                 // tabulate frequency counts
                 std::vector<int> freq(R);
                 for (int i = 0; i < input.size(); i++)
+                {
+                    assert(input[i] >= 0);
                     freq[input[i]]++;
+                }
 
                 // build Huffman trie
                 Node_ptr root = buildTrie(freq);
@@ -116,7 +119,11 @@ namespace bw {
                         else if (code.at(j) == '1') {
                             streamout.write(true);
                         }
-                        else throw new std::invalid_argument("Illegal state");
+                        else
+                        {
+                            std::cout << "Code:" << code << std::endl;
+                            throw new std::invalid_argument("Illegal state");
+                        }
                     }
                 }
 
@@ -157,7 +164,7 @@ namespace bw {
                     //BinaryStdOut.write(true);
                     //BinaryStdOut.write(x.ch, 8);
                     streamout.write(true);
-                    streamout.write(x->ch);
+                    streamout.write((char)x->ch);
                     return;
                 }
 

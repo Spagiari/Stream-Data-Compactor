@@ -53,9 +53,9 @@ namespace bw
                         first = i;
                     bufferb.put(buffer.at((buffer.length() + cas.index(i) - 1) % buffer.length()));
                 }
-                streamout.write(reinterpret_cast<const char *>(&first), sizeof(first));
-                streamout << bufferb.rdbuf();
-                streamout.flush();
+               streamout.write(reinterpret_cast<const char *>(&first), sizeof(first));
+               streamout << bufferb.rdbuf();
+               streamout.flush();
             }
 
             // apply Burrows-Wheeler decoding, reading from standard input and writing to standard output
@@ -72,24 +72,26 @@ namespace bw
 
                 char c;
                 while (streamin.get(c)) {
-                    if (pos[c] == nullptr)
-                        pos[c] = Item_uptr(new Item());
-                    pos[c]->inc();
-                    pos[c]->enqueue(i);
+                    unsigned char d = c;
+                    if (pos[d] == nullptr)
+                        pos[d] = Item_uptr(new Item());
+                    pos[d]->inc();
+                    pos[d]->enqueue(i);
                     i++;
                 }
 
                 std::vector<int> next(i);
-                std::vector<char> sorted(i);
+                std::vector<unsigned char> sorted(i);
 
                 len = i;
                 i = 0;
 
-                for (int j = 0; j < 256; j++)
-                    for (int k = 0; pos[j] != nullptr && k < pos[j]->getCount(); k++)
+
+                for (int j = 0; j < 256; ++j)
+                    for (int k = 0; pos[j] != nullptr && k < pos[j]->getCount(); ++k)
                     {
                         next[i] = pos[j]->dequeue();
-                        sorted[i] = (char) j;
+                        sorted[i] = j;
                         i++;
                     }
 

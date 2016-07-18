@@ -8,7 +8,7 @@ namespace bw
 {
     class ostreambin {
         private:
-            char bufferOut;
+            unsigned char bufferOut;
             int  bufferOutBitSize;
             std::ostream* out_ptr;
 

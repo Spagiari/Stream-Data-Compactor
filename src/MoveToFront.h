@@ -14,12 +14,12 @@ namespace bw
             class Item
             {
                 private:
-                    char value;
+                    unsigned char value;
                 public:
                     Item(char v) {
                         value = v;
                     }
-                    char get() const { return value; }
+                    unsigned char get() const { return value; }
                     void set(const char &c) { value = c; }
                     void inc() { value++; }
             };
@@ -39,14 +39,14 @@ namespace bw
 
                 char c;
                 while (streamin.get(c)) {
-                    int d = (0xff) & c;
+                    unsigned char d = c;
                     std::shared_ptr<Item> pos = ct[d];
                     for (int i = pos->get(); i > 0; --i) {
                         cv[i] = cv[i-1];
                         cv[i]->inc();
                     }
                     cv[0] = pos;
-                    sb.put(pos->get());
+                    sb.put((char)pos->get());
                     pos->set(0);
                 }
 
@@ -66,10 +66,11 @@ namespace bw
                 }
 
                 while (streamin.get(p)) {
-                    c = cv[p];
+                    unsigned char d = p;
+                    c = cv[d];
                     sb.put(c);
 
-                    for (int i = p; i > 0; i--) {
+                    for (int i = d; i > 0; i--) {
                         cv[i] = cv[i-1];
                     }
                     cv[0] = c;
