@@ -41,3 +41,8 @@ $ time bin/BurrowsWheeler -e < test/mobydick.txt |
     bin/Huffman -e > test/mobydick1.bwc
 ```
 #### Uncompress ####
+```
+$ time bin/Huffman -d < test/mobydick1.bwc |
+    bin/MoveToFront -d |
+    bin/BurrowsWheeler -d > test/mobydick1.txt
+```
