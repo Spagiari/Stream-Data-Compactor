@@ -122,7 +122,7 @@ namespace bw {
                         else
                         {
                             std::cout << "Code:" << code << std::endl;
-                            throw new std::invalid_argument("Illegal state");
+                            throw std::invalid_argument("Illegal state");
                         }
                     }
                 }

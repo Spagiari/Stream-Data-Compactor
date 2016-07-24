@@ -33,7 +33,7 @@ namespace bw {
             }
             int index(int i)               // returns index of ith sorted suffix
             {   if (i < 0 || i >= len)
-                throw new std::invalid_argument("Out of range");
+                throw std::invalid_argument("Out of range");
                 return idx->at(i);
             }
             std::string strIndex(int i)        // return string on index
