@@ -137,18 +137,18 @@ namespace bw {
 
                 for (int i = 0; i < R; i++)
                     if (freq[i] > 0)
-                        pq.push(Node_ptr(new Node(i, freq[i], nullptr, nullptr)));
+                        pq.push(std::make_shared<Node>(i, freq[i], nullptr, nullptr));
                 // special case in case there is only one character with a nonzero frequency
                 if (pq.size() == 1) {
-                    if (freq['\0'] == 0) pq.push(Node_ptr(new Node('\0', 0, nullptr, nullptr)));
-                    else                 pq.push(Node_ptr(new Node('\1', 0, nullptr, nullptr)));
+                    if (freq['\0'] == 0) pq.push(std::make_shared<Node>('\0', 0, nullptr, nullptr));
+                    else                 pq.push(std::make_shared<Node>('\1', 0, nullptr, nullptr));
                 }
 
                 // merge two smallest trees
                 while (pq.size() > 1) {
                     Node_ptr left  = pq.top(); pq.pop();
                     Node_ptr right = pq.top(); pq.pop();
-                    Node_ptr parent = Node_ptr(new Node('\0', left->freq + right->freq, left, right));
+                    Node_ptr parent = std::make_shared<Node>('\0', left->freq + right->freq, left, right);
                     pq.push(parent);
                 }
 
@@ -227,10 +227,10 @@ namespace bw {
                                 if (isLeaf) {
                                     char c;
                                     streamin.read(c);
-                                    return Node_ptr(new Node(c, -1, nullptr, nullptr));
+                                    return std::make_shared<Node>(c, -1, nullptr, nullptr);
                                 }
                                 else {
-                                    return Node_ptr(new Node('\0', -1, readTrie(streamin), readTrie(streamin)));
+                                    return std::make_shared<Node>('\0', -1, readTrie(streamin), readTrie(streamin));
                                 }
                             }
     };
