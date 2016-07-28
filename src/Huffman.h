@@ -83,8 +83,7 @@ namespace bw {
         public:
             void static compress(istreambin &streamin, ostreambin &streamout) {
                 // read the input
-                std::istreambuf_iterator<char> eos;
-                std::string input(std::istreambuf_iterator<char>(*(streamin.getStream())), eos);
+                std::string input(std::istreambuf_iterator<char>(*(streamin.getStream())), {});
                 //std::getline(*streamin.getStream(), input, (char) std::cin.eof());
 
                 // tabulate frequency counts
