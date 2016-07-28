@@ -100,8 +100,7 @@ int main(int argc, char** argv)
         {
 
             bw::ostreambin streamout(&std::cout);
-            std::string s;
-            std::getline(std::cin, s, (char) std::cin.eof());
+            std::string s(std::istreambuf_iterator<char>(std::cin), {});
             std::stringstream in(s);
             bw::istreambin streamin(&in);
             bw::Huffman::expand(streamin, streamout);

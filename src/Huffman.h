@@ -57,6 +57,7 @@ namespace bw {
 
     };
     typedef std::shared_ptr<Node> Node_ptr;
+    typedef unsigned char UCHAR;
 
 
     bool operator<(const bw::Node_ptr &a, const bw::Node_ptr &b);
@@ -82,15 +83,15 @@ namespace bw {
         public:
             void static compress(istreambin &streamin, ostreambin &streamout) {
                 // read the input
-                std::string input;
-                std::getline(*streamin.getStream(), input, (char) std::cin.eof());
+                std::string input(std::istreambuf_iterator<char>(*(streamin.getStream())), {});
+                //std::getline(*streamin.getStream(), input, (char) std::cin.eof());
 
                 // tabulate frequency counts
                 std::vector<int> freq(R);
                 for (int i = 0; i < input.size(); i++)
                 {
-                    assert(input[i] >= 0);
-                    freq[input[i]]++;
+                    assert(((UCHAR)input[i]) >= 0);
+                    freq[((UCHAR)input[i])]++;
                 }
 
                 // build Huffman trie
@@ -109,7 +110,7 @@ namespace bw {
 
                 // use Huffman code to encode input
                 for (int i = 0; i < input.size(); i++) {
-                    std::string code = st[input[i]];
+                    std::string code = st[((UCHAR)input[i])];
                     for (int j = 0; j < code.size(); j++) {
                         if (code.at(j) == '0') {
                             streamout.write(false);
