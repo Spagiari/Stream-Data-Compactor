@@ -3,6 +3,7 @@
 
 #include <functional>
 #include <string>
+#include <sstream>
 #include <cassert>
 #include <stdexcept>
 #include <vector>
@@ -10,7 +11,6 @@
 #include <memory>
 #include <iostream>
 
-#include <sstream>
 #include "ostreambin.h"
 #include "istreambin.h"
 
@@ -84,7 +84,6 @@ namespace bw {
             void static compress(istreambin &streamin, ostreambin &streamout) {
                 // read the input
                 std::string input(std::istreambuf_iterator<char>(*(streamin.getStream())), {});
-                //std::getline(*streamin.getStream(), input, (char) std::cin.eof());
 
                 // tabulate frequency counts
                 std::vector<int> freq(R);

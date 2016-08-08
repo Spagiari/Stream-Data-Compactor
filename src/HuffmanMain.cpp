@@ -8,7 +8,6 @@
 #include "Huffman.h"
 #include "istreambin.h"
 #include "ostreambin.h"
-#include <sstream>
 
 namespace
 {
@@ -68,14 +67,16 @@ int main(int argc, char** argv)
         //std::fstream ofs;
         //ofs.open(sof.c_str(), std::ios::binary | std::ios::out);
 
+        bw::istreambin streamin(&std::cin);
+        bw::ostreambin streamout(&std::cout);
+
         if (vm.count("encode"))
         {
             if (vm.count("hexdump"))
             {
                 std::stringstream sout;
-                bw::ostreambin streamout(&sout);
-                bw::istreambin streamin(&std::cin);
-                bw::Huffman::compress(streamin, streamout);
+                bw::ostreambin streamout_ex(&sout);
+                bw::Huffman::compress(streamin, streamout_ex);
                 int bytes = 0;
                 char c;
                 while (sout.get(c))
@@ -89,20 +90,12 @@ int main(int argc, char** argv)
             }
             else
             {
-                bw::ostreambin streamout(&std::cout);
-                bw::istreambin streamin(&std::cin);
-
                 bw::Huffman::compress(streamin, streamout);
             }
         }
 
         if (vm.count("decode"))
         {
-
-            bw::ostreambin streamout(&std::cout);
-            std::string s(std::istreambuf_iterator<char>(std::cin), {});
-            std::stringstream in(s);
-            bw::istreambin streamin(&in);
             bw::Huffman::expand(streamin, streamout);
         }
 
