@@ -4,6 +4,7 @@
 #include <fstream>
 #include <iomanip>
 #include <string>
+#include <fstream>
 
 #include "Huffman.h"
 #include "istreambin.h"
@@ -19,8 +20,8 @@ namespace
 
 int main(int argc, char** argv)
 {
-    //std::string sif;
-    //std::string sof;
+    std::string sif;
+    std::string sof;
     try
     {
         /** Define and parse the program options
@@ -33,8 +34,8 @@ int main(int argc, char** argv)
             ("help,h", "Print help messages")
             ("encode,e", "Apply move to front encode")
             ("decode,d", "Apply move to front decode")
-            //("input,i", po::value<std::string>(&sif)->required(),  "Input File")
-            //("output,o", po::value<std::string>(&sof)->required(), "Output File")
+            ("input,i", po::value<std::string>(&sif),  "Input File")
+            ("output,o", po::value<std::string>(&sof), "Output File")
             ("hexdump,x", "Set output to hex format");
 
         po::variables_map vm;
@@ -62,13 +63,18 @@ int main(int argc, char** argv)
             return ERROR_IN_COMMAND_LINE;
         }
 
-        //std::fstream ifs;
-        //ifs.open(sif.c_str(), std::ios::binary | std::ios::in);
-        //std::fstream ofs;
-        //ofs.open(sof.c_str(), std::ios::binary | std::ios::out);
+        std::ifstream ifs;
 
-        bw::istreambin streamin(&std::cin);
-        bw::ostreambin streamout(&std::cout);
+        if (sif.size())
+            ifs.open(sif.c_str(), std::ios::binary | std::ios::in);
+
+        std::ofstream ofs;
+
+        if (sof.size())
+            ofs.open(sof.c_str(), std::ios::binary | std::ios::out);
+
+        bw::istreambin streamin(ifs.is_open() ? &ifs : &std::cin);
+        bw::ostreambin streamout(ofs.is_open() ? &ofs : &std::cout);
 
         if (vm.count("encode"))
         {
