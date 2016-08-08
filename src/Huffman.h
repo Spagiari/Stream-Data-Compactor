@@ -3,6 +3,7 @@
 
 #include <functional>
 #include <string>
+#include <sstream>
 #include <cassert>
 #include <stdexcept>
 #include <vector>
@@ -10,7 +11,6 @@
 #include <memory>
 #include <iostream>
 
-#include <sstream>
 #include "ostreambin.h"
 #include "istreambin.h"
 
@@ -20,21 +20,35 @@ namespace bw {
         public:
             unsigned char ch;
             int freq;
-            std::shared_ptr<Node> left, right;
+            std::unique_ptr<Node> left, right;
 
-            Node(char _ch, int _freq, const std::shared_ptr<Node> _left, const std::shared_ptr<Node> _right)
+            Node(char _ch, int _freq, std::unique_ptr<Node> &_left, std::unique_ptr<Node> &_right)
                 :ch(_ch)
                  ,freq(_freq)
-                 ,left(_left)
-                 ,right(_right)
-        {
-        }
+                 ,left(std::move(_left))
+                 ,right(std::move(_right))
+            {
+            }
 
-            Node(std::shared_ptr<Node> const & that)
+            Node(char _ch, int _freq, std::unique_ptr<Node> &&_left, std::unique_ptr<Node> &&_right)
+                :ch(_ch)
+                 ,freq(_freq)
+                 ,left(std::move(_left))
+                 ,right(std::move(_right))
+            {
+            }
+
+            Node(char _ch, int _freq)
+                :ch(_ch)
+                 ,freq(_freq)
+            {
+            }
+
+            Node(std::unique_ptr<Node> & that)
                 :ch(that->ch)
                  ,freq(that->freq)
-                 ,left(that->left)
-                 ,right(that->right)
+                 ,left(std::move(that->left))
+                 ,right(std::move(that->right))
         {
         }
 
@@ -56,8 +70,8 @@ namespace bw {
             }
 
     };
-    typedef std::shared_ptr<Node> Node_ptr;
     typedef unsigned char UCHAR;
+    typedef std::unique_ptr<Node> Node_ptr;
 
 
     bool operator<(const bw::Node_ptr &a, const bw::Node_ptr &b);
@@ -84,7 +98,6 @@ namespace bw {
             void static compress(istreambin &streamin, ostreambin &streamout) {
                 // read the input
                 std::string input(std::istreambuf_iterator<char>(*(streamin.getStream())), {});
-                //std::getline(*streamin.getStream(), input, (char) std::cin.eof());
 
                 // tabulate frequency counts
                 std::vector<int> freq(R);
@@ -95,7 +108,7 @@ namespace bw {
                 }
 
                 // build Huffman trie
-                Node_ptr root = buildTrie(freq);
+                Node_ptr root(buildTrie(freq));
 
                 // build code table
                 std::vector<std::string> st(R);
@@ -132,29 +145,29 @@ namespace bw {
 
         private:
             // build the Huffman trie given frequencies
-            Node_ptr static buildTrie(const std::vector<int> &freq) {
+            static Node *buildTrie(const std::vector<int> &freq) {
                 // initialze priority queue with singleton trees
                 std::priority_queue<Node_ptr, std::vector<Node_ptr>, std::greater<Node_ptr>> pq;
 
                 for (int i = 0; i < R; i++)
                     if (freq[i] > 0)
-                        pq.push(std::make_shared<Node>(i, freq[i], nullptr, nullptr));
+                        pq.emplace(new Node(i, freq[i]));
                 // special case in case there is only one character with a nonzero frequency
                 if (pq.size() == 1) {
-                    if (freq['\0'] == 0) pq.push(std::make_shared<Node>('\0', 0, nullptr, nullptr));
-                    else                 pq.push(std::make_shared<Node>('\1', 0, nullptr, nullptr));
+                    if (freq['\0'] == 0) pq.emplace(new Node('\0', 0));
+                    else                 pq.emplace(new Node('\1', 0));
                 }
 
                 // merge two smallest trees
                 while (pq.size() > 1) {
-                    Node_ptr left  = pq.top(); pq.pop();
-                    Node_ptr right = pq.top(); pq.pop();
-                    Node_ptr parent = std::make_shared<Node>('\0', left->freq + right->freq, left, right);
-                    pq.push(parent);
+                    Node_ptr left(std::move(const_cast<Node_ptr&>(pq.top()))); pq.pop();
+                    Node_ptr right(std::move(const_cast<Node_ptr&>(pq.top()))); pq.pop();
+                    auto freq = left->freq + right->freq;
+                    pq.emplace(new Node('\0', freq, left, right));
                 }
 
-                Node_ptr ret = pq.top(); pq.pop();
-                return ret;
+                Node_ptr ret = std::move(const_cast<Node_ptr&>(pq.top())); pq.pop();
+                return ret.release();
             }
 
             // write bitstring-encoded trie to standard output
@@ -173,7 +186,7 @@ namespace bw {
             }
 
             // make a lookup table from symbols and their encodings
-            void static buildCode(std::vector<std::string> &st, Node_ptr x, const std::string &s) {
+            void static buildCode(std::vector<std::string> &st, Node_ptr const &x, const std::string &s) {
                 if (!x->isLeaf()) {
                     buildCode(st, x->left,  s + "0");
                     buildCode(st, x->right, s + "1");
@@ -193,7 +206,7 @@ namespace bw {
                                 streamin.fillbuffer();
 
                                 // read in Huffman trie from input stream
-                                Node_ptr root = readTrie(streamin);
+                                Node_ptr root(readTrie(streamin));
 
                                 // number of bytes to write
                                 int length;
@@ -204,13 +217,13 @@ namespace bw {
 
                                 // decode using the Huffman trie
                                 for (int i = 0; i < length; i++) {
-                                    Node_ptr x = root;
+                                    Node *x = root.get();
                                     while (!x->isLeaf()) {
                                         bool bit;
                                         streamin.read(bit);
 
-                                        if (bit) x = x->right;
-                                        else     x = x->left;
+                                        if (bit) x = x->right.get();
+                                        else     x = x->left.get();
                                     }
                                     //streamout.getStream()->put(x->ch);
                                     ss.put(x->ch);
@@ -220,19 +233,24 @@ namespace bw {
                             }
 
         private:
-                            Node_ptr static readTrie(istreambin &streamin) {
+                            static Node *readTrie(istreambin &streamin) {
                                 bool isLeaf;
 
                                 streamin.read(isLeaf);
+                                Node_ptr ret;
 
                                 if (isLeaf) {
                                     char c;
                                     streamin.read(c);
-                                    return std::make_shared<Node>(c, -1, nullptr, nullptr);
+                                    ret.reset(new Node(c, -1));
                                 }
                                 else {
-                                    return std::make_shared<Node>('\0', -1, readTrie(streamin), readTrie(streamin));
+                                    Node_ptr left(readTrie(streamin));
+                                    Node_ptr right(readTrie(streamin));
+                                    ret.reset(new Node('\0', -1, left, right));
                                 }
+
+                                return ret.release();
                             }
     };
 }

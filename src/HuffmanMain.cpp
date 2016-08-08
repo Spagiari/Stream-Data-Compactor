@@ -4,11 +4,11 @@
 #include <fstream>
 #include <iomanip>
 #include <string>
+#include <fstream>
 
 #include "Huffman.h"
 #include "istreambin.h"
 #include "ostreambin.h"
-#include <sstream>
 
 namespace
 {
@@ -20,8 +20,8 @@ namespace
 
 int main(int argc, char** argv)
 {
-    //std::string sif;
-    //std::string sof;
+    std::string sif;
+    std::string sof;
     try
     {
         /** Define and parse the program options
@@ -34,8 +34,8 @@ int main(int argc, char** argv)
             ("help,h", "Print help messages")
             ("encode,e", "Apply move to front encode")
             ("decode,d", "Apply move to front decode")
-            //("input,i", po::value<std::string>(&sif)->required(),  "Input File")
-            //("output,o", po::value<std::string>(&sof)->required(), "Output File")
+            ("input,i", po::value<std::string>(&sif),  "Input File")
+            ("output,o", po::value<std::string>(&sof), "Output File")
             ("hexdump,x", "Set output to hex format");
 
         po::variables_map vm;
@@ -63,19 +63,26 @@ int main(int argc, char** argv)
             return ERROR_IN_COMMAND_LINE;
         }
 
-        //std::fstream ifs;
-        //ifs.open(sif.c_str(), std::ios::binary | std::ios::in);
-        //std::fstream ofs;
-        //ofs.open(sof.c_str(), std::ios::binary | std::ios::out);
+        std::ifstream ifs;
+
+        if (sif.size())
+            ifs.open(sif.c_str(), std::ios::binary | std::ios::in);
+
+        std::ofstream ofs;
+
+        if (sof.size())
+            ofs.open(sof.c_str(), std::ios::binary | std::ios::out);
+
+        bw::istreambin streamin(ifs.is_open() ? &ifs : &std::cin);
+        bw::ostreambin streamout(ofs.is_open() ? &ofs : &std::cout);
 
         if (vm.count("encode"))
         {
             if (vm.count("hexdump"))
             {
                 std::stringstream sout;
-                bw::ostreambin streamout(&sout);
-                bw::istreambin streamin(&std::cin);
-                bw::Huffman::compress(streamin, streamout);
+                bw::ostreambin streamout_ex(&sout);
+                bw::Huffman::compress(streamin, streamout_ex);
                 int bytes = 0;
                 char c;
                 while (sout.get(c))
@@ -89,20 +96,12 @@ int main(int argc, char** argv)
             }
             else
             {
-                bw::ostreambin streamout(&std::cout);
-                bw::istreambin streamin(&std::cin);
-
                 bw::Huffman::compress(streamin, streamout);
             }
         }
 
         if (vm.count("decode"))
         {
-
-            bw::ostreambin streamout(&std::cout);
-            std::string s(std::istreambuf_iterator<char>(std::cin), {});
-            std::stringstream in(s);
-            bw::istreambin streamin(&in);
             bw::Huffman::expand(streamin, streamout);
         }
 
